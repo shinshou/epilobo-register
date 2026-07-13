@@ -663,11 +663,26 @@
               })
             });
 
+          const responseText =
+            await response.text();
+
+          alert(
+            '[診断7] fetch応答\n' +
+            'status: ' + response.status + '\n' +
+            'ok: ' + response.ok + '\n' +
+            'body先頭300文字: ' + responseText.slice(0, 300)
+          );
+
           const result =
-            await response.json();
+            JSON.parse(responseText);
 
           handleSuccess(result);
         } catch (error) {
+          alert(
+            '[診断エラー7] fetch/JSON解析で例外\n' +
+            (error.message || String(error))
+          );
+
           handleFailure(error);
         }
       }
