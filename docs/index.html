@@ -237,7 +237,24 @@
 </head>
 
 <body>
-  <main class="container">
+  <pre id="debugLog" style="
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    max-height: 40vh;
+    overflow-y: auto;
+    margin: 0;
+    padding: 8px;
+    background: #000;
+    color: #0f0;
+    font-size: 11px;
+    white-space: pre-wrap;
+    word-break: break-all;
+    z-index: 9999;
+  "></pre>
+
+  <main class="container" style="margin-top: 40vh;">
     <h1>研究参加登録</h1>
 
     <form id="registrationForm">
@@ -458,6 +475,22 @@
     let liffReady = false;
     let lineAddFriendUrl = '';
 
+    const debugLog =
+      document.getElementById('debugLog');
+
+    /**
+     * 画面上に常時表示する診断ログ
+     * (alertは連続表示でブラウザに抑制されることがあるため使わない)
+     */
+    function logDebug(text) {
+      debugLog.textContent +=
+        '[' + new Date().toISOString().slice(11, 19) + '] ' +
+        text + '\n\n';
+
+      debugLog.scrollTop =
+        debugLog.scrollHeight;
+    }
+
     /**
      * GASから設定情報(LIFF ID等)を取得
      */
@@ -480,10 +513,12 @@
      */
     async function initializeLiff() {
       try {
+        logDebug('initializeLiff開始');
+
         const config =
           await fetchConfig();
 
-        alert(
+        logDebug(
           '[診断1] 設定取得OK\n' +
           'liffId: ' + config.liffId + '\n' +
           'iframe内か: ' + (window.top !== window.self)
@@ -508,13 +543,15 @@
           liffId: config.liffId
         });
 
-        alert(
+        logDebug(
           '[診断2] liff.init成功\n' +
           'isInClient: ' + liff.isInClient() + '\n' +
           'isLoggedIn: ' + liff.isLoggedIn()
         );
 
         if (!liff.isLoggedIn()) {
+          logDebug('未ログインのためliff.loginを呼びます');
+
           liff.login({
             redirectUri: window.location.href
           });
@@ -524,7 +561,7 @@
 
         const idToken = liff.getIDToken();
 
-        alert(
+        logDebug(
           '[診断3] idToken取得結果\n' +
           'idTokenあり: ' + !!idToken
         );
@@ -540,6 +577,8 @@
 
         updateSubmitButton();
 
+        logDebug('[診断4] liffReady = true');
+
         if (lineAddFriendUrl) {
           friendLink.href =
             lineAddFriendUrl;
@@ -554,9 +593,10 @@
 
         updateSubmitButton();
 
-        alert(
+        logDebug(
           '[診断エラー] initializeLiffで例外\n' +
-          (error.message || String(error))
+          (error.message || String(error)) + '\n' +
+          (error.stack || '')
         );
 
         showError(
@@ -666,8 +706,8 @@
           const responseText =
             await response.text();
 
-          alert(
-            '[診断7] fetch応答\n' +
+          logDebug(
+            '[診断5] fetch応答\n' +
             'status: ' + response.status + '\n' +
             'ok: ' + response.ok + '\n' +
             'body先頭300文字: ' + responseText.slice(0, 300)
@@ -678,9 +718,10 @@
 
           handleSuccess(result);
         } catch (error) {
-          alert(
-            '[診断エラー7] fetch/JSON解析で例外\n' +
-            (error.message || String(error))
+          logDebug(
+            '[診断エラー5] fetch/JSON解析で例外\n' +
+            (error.message || String(error)) + '\n' +
+            (error.stack || '')
           );
 
           handleFailure(error);
