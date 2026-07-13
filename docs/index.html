@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>研究参加登録</title>
+
+  <!-- LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      padding: 24px 16px;
+      background: #f5f7f9;
+      color: #222;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        "Hiragino Kaku Gothic ProN",
+        "Yu Gothic",
+        sans-serif;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 560px;
+      margin: 0 auto;
+      padding: 24px;
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: 0 4px 18px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin: 0 0 20px;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .description {
+      margin-bottom: 20px;
+      line-height: 1.8;
+    }
+
+    h2 {
+      margin: 0 0 14px;
+      color: #078a3d;
+      font-size: 18px;
+    }
+
+    h3 {
+      margin: 0 0 6px;
+      font-size: 16px;
+    }
+
+    p {
+      line-height: 1.8;
+    }
+
+    .consent-section,
+    .information-section,
+    .purpose-section,
+    .management-section {
+      margin-bottom: 20px;
+      padding: 18px;
+      border: 1px solid #b8dfc5;
+      border-radius: 10px;
+      background: #f7fcf8;
+    }
+
+    .consent-section p,
+    .purpose-item p,
+    .management-section p {
+      margin: 0 0 12px;
+    }
+
+    .consent-section p:last-child,
+    .purpose-item p:last-child,
+    .management-section p:last-child {
+      margin-bottom: 0;
+    }
+
+    .information-section ul {
+      margin: 0;
+      padding-left: 22px;
+      line-height: 1.9;
+    }
+
+    .purpose-item {
+      margin-bottom: 18px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #d7e9dd;
+    }
+
+    .purpose-item:last-child {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .field {
+      margin-bottom: 18px;
+    }
+
+    .field>label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+
+    input,
+    select,
+    button {
+      width: 100%;
+      min-height: 48px;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+
+    input,
+    select {
+      padding: 10px 12px;
+      border: 1px solid #bbb;
+      background: #fff;
+    }
+
+    button {
+      border: 0;
+      padding: 12px;
+      background: #06c755;
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    .consent-checkbox {
+      margin: 20px 0;
+      padding: 16px;
+      border: 1px solid #b8dfc5;
+      border-radius: 10px;
+      background: #f7fcf8;
+    }
+
+    .consent-checkbox label {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin: 0;
+      cursor: pointer;
+      line-height: 1.7;
+    }
+
+    .consent-checkbox input {
+      width: 22px;
+      min-height: initial;
+      height: 22px;
+      margin-top: 2px;
+      flex-shrink: 0;
+    }
+
+    .consent-note {
+      margin-top: 14px;
+      color: #666;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .message {
+      display: none;
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 8px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .message.success {
+      display: block;
+      background: #e8f8ef;
+      color: #156b35;
+    }
+
+    .message.error {
+      display: block;
+      background: #fdecec;
+      color: #a32626;
+    }
+
+    .loading {
+      display: none;
+      margin-top: 14px;
+      text-align: center;
+    }
+
+    .loading.active {
+      display: block;
+    }
+
+    #friendSection {
+      display: none;
+      margin-top: 18px;
+    }
+
+    .secondary-button {
+      display: block;
+      margin-top: 14px;
+      padding: 13px;
+      border: 1px solid #06c755;
+      border-radius: 8px;
+      color: #06c755;
+      text-align: center;
+      text-decoration: none;
+      font-weight: 700;
+    }
+
+    .privacy-note {
+      margin-top: 12px;
+      color: #555;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <h1>研究参加登録</h1>
+
+    <form id="registrationForm">
+
+      <section class="consent-section">
+        <h2>研究参加登録について</h2>
+
+        <p>
+          本アプリでは、LINEアカウントの情報を利用して、
+          研究参加者の登録および研究に関するご案内を行います。
+        </p>
+
+        <p>
+          以下の内容をご確認のうえ、同意いただける場合は
+          チェックを入れて登録を進めてください。
+        </p>
+      </section>
+
+      <section class="information-section">
+        <h2>取得する情報</h2>
+
+        <ul>
+          <li>LINEユーザーID</li>
+          <li>LINEプロフィール情報</li>
+          <li>メールアドレス</li>
+          <li>研究参加ID</li>
+          <li>使用言語</li>
+        </ul>
+      </section>
+
+      <section class="purpose-section">
+        <h2>情報の使用目的</h2>
+
+        <div class="purpose-item">
+          <h3>LINEユーザーID</h3>
+
+          <p>
+            研究参加IDとLINEアカウントを紐付け、
+            研究参加者を識別するために利用します。
+          </p>
+        </div>
+
+        <div class="purpose-item">
+          <h3>LINEプロフィール情報</h3>
+
+          <p>
+            登録時の本人確認および登録状況の確認のために利用します。
+          </p>
+        </div>
+
+        <div class="purpose-item">
+          <h3>メールアドレス</h3>
+
+          <p>
+            研究に関するご案内、質問紙の配信、
+            登録内容の確認および必要な連絡を行うために利用します。
+          </p>
+        </div>
+
+        <div class="purpose-item">
+          <h3>研究参加ID</h3>
+
+          <p>
+            氏名を使用せず、研究データと利用記録を管理するために利用します。
+          </p>
+        </div>
+
+        <div class="purpose-item">
+          <h3>使用言語</h3>
+
+          <p>
+            参加者が希望する言語で、
+            研究に関する案内やレコメンドメッセージを配信するために利用します。
+          </p>
+        </div>
+      </section>
+
+      <section class="management-section">
+        <h2>情報の管理について</h2>
+
+        <p>
+          取得した情報は、本研究の目的以外には使用しません。
+          個人を特定できる情報と、会話履歴・利用履歴などの研究データは
+          分けて管理します。
+        </p>
+
+        <p>
+          取得した情報は適切なアクセス制限を設けて管理し、
+          研究終了後は研究計画で定めた保管期間に従って
+          削除または匿名化します。
+        </p>
+
+        <p>
+          研究への参加は任意です。
+          同意しないことや、参加後に同意を撤回することで、
+          不利益を受けることはありません。
+        </p>
+      </section>
+
+      <div class="field">
+        <label for="participantId">
+          研究参加ID
+        </label>
+
+        <input
+          id="participantId"
+          name="participantId"
+          type="text"
+          placeholder="例：EP0001"
+          autocomplete="off"
+          maxlength="20"
+          required
+        >
+      </div>
+
+      <div class="field">
+        <label for="language">
+          使用言語
+        </label>
+
+        <select id="language" name="language">
+          <option value="ja">日本語</option>
+          <option value="en">English</option>
+          <option value="ms">Bahasa Melayu</option>
+        </select>
+      </div>
+
+      <div class="consent-checkbox">
+        <label>
+          <input
+            id="consentCheckbox"
+            type="checkbox"
+          >
+
+          <span>
+            上記の取得情報、使用目的および情報管理について確認し、
+            同意します。
+          </span>
+        </label>
+      </div>
+
+      <button
+        id="submitButton"
+        type="submit"
+        disabled
+      >
+        同意して登録する
+      </button>
+
+      <p class="consent-note">
+        同意いただけない場合は、
+        研究参加登録を続けることができません。
+      </p>
+
+      <p class="privacy-note">
+        メールアドレスは、
+        LINE側でメールアドレス取得の許可が承認されている場合のみ取得されます。
+      </p>
+    </form>
+
+    <div id="loading" class="loading">
+      登録処理中です。
+    </div>
+
+    <div id="message" class="message" role="alert"></div>
+
+    <div id="friendSection">
+      <p>
+        続けて、研究用LINE公式アカウントを
+        友だち追加してください。
+      </p>
+
+      <a id="friendLink" class="secondary-button" href="#">
+        LINE公式アカウントを友だち追加
+      </a>
+    </div>
+  </main>
+
+  <script>
+    /**
+     * GASのWebアプリは内部でiframeにラップされ、
+     * LIFF初期化が完了しない事象があったため、
+     * 画面はGitHub Pagesに置き、GASはJSON APIとして
+     * doGet(設定取得)/doPost(登録)のみ提供する。
+     */
+    const GAS_API_URL =
+      'https://script.google.com/macros/s/AKfycbzpDvsU8LHofrqXklz71EX5PVtYIv-sT52Pz0QiLo3wamszE60HuIlZRyR6MWc66rynUw/exec';
+
+    const CONSENT_VERSION = '1.0';
+
+    const form =
+      document.getElementById('registrationForm');
+
+    const participantIdInput =
+      document.getElementById('participantId');
+
+    const languageSelect =
+      document.getElementById('language');
+
+    const consentCheckbox =
+      document.getElementById('consentCheckbox');
+
+    const submitButton =
+      document.getElementById('submitButton');
+
+    const loading =
+      document.getElementById('loading');
+
+    const message =
+      document.getElementById('message');
+
+    const friendSection =
+      document.getElementById('friendSection');
+
+    const friendLink =
+      document.getElementById('friendLink');
+
+    let liffReady = false;
+    let lineAddFriendUrl = '';
+
+    /**
+     * GASから設定情報(LIFF ID等)を取得
+     */
+    async function fetchConfig() {
+      const response =
+        await fetch(GAS_API_URL);
+
+      if (!response.ok) {
+        throw new Error(
+          '設定情報を取得できませんでした。(HTTP ' +
+          response.status + ')'
+        );
+      }
+
+      return response.json();
+    }
+
+    /**
+     * LIFF初期化
+     */
+    async function initializeLiff() {
+      try {
+        const config =
+          await fetchConfig();
+
+        alert(
+          '[診断1] 設定取得OK\n' +
+          'liffId: ' + config.liffId + '\n' +
+          'iframe内か: ' + (window.top !== window.self)
+        );
+
+        if (!config.liffId) {
+          throw new Error(
+            'LIFF IDが設定されていません。'
+          );
+        }
+
+        lineAddFriendUrl =
+          config.lineAddFriendUrl || '';
+
+        if (typeof liff === 'undefined') {
+          throw new Error(
+            'LIFF SDKを読み込めませんでした。'
+          );
+        }
+
+        await liff.init({
+          liffId: config.liffId
+        });
+
+        alert(
+          '[診断2] liff.init成功\n' +
+          'isInClient: ' + liff.isInClient() + '\n' +
+          'isLoggedIn: ' + liff.isLoggedIn()
+        );
+
+        if (!liff.isLoggedIn()) {
+          liff.login({
+            redirectUri: window.location.href
+          });
+
+          return;
+        }
+
+        const idToken = liff.getIDToken();
+
+        alert(
+          '[診断3] idToken取得結果\n' +
+          'idTokenあり: ' + !!idToken
+        );
+
+        if (!idToken) {
+          throw new Error(
+            'LINE認証情報を取得できませんでした。' +
+            'LINE Developersでopenidスコープをご確認ください。'
+          );
+        }
+
+        liffReady = true;
+
+        updateSubmitButton();
+
+        if (lineAddFriendUrl) {
+          friendLink.href =
+            lineAddFriendUrl;
+        }
+      } catch (error) {
+        console.error(
+          'LIFF初期化エラー:',
+          error
+        );
+
+        liffReady = false;
+
+        updateSubmitButton();
+
+        alert(
+          '[診断エラー] initializeLiffで例外\n' +
+          (error.message || String(error))
+        );
+
+        showError(
+          'LINE登録画面を初期化できませんでした。\n' +
+          (error.message || String(error))
+        );
+      }
+    }
+
+    /**
+     * 同意チェック変更
+     */
+    consentCheckbox.addEventListener(
+      'change',
+      updateSubmitButton
+    );
+
+    /**
+     * ボタン有効・無効切り替え
+     */
+    function updateSubmitButton() {
+      submitButton.disabled = !(
+        liffReady &&
+        consentCheckbox.checked
+      );
+    }
+
+    /**
+     * 登録処理
+     */
+    form.addEventListener(
+      'submit',
+      async function (event) {
+        event.preventDefault();
+
+        clearMessage();
+
+        if (!liffReady) {
+          showError(
+            'LINE認証が完了していません。' +
+            '画面を再読み込みしてください。'
+          );
+
+          return;
+        }
+
+        if (!consentCheckbox.checked) {
+          showError(
+            '取得する情報と使用目的をご確認のうえ、' +
+            '同意してください。'
+          );
+
+          return;
+        }
+
+        const participantId =
+          participantIdInput.value.trim();
+
+        if (!participantId) {
+          showError(
+            '研究参加IDを入力してください。'
+          );
+
+          return;
+        }
+
+        const idToken =
+          liff.getIDToken();
+
+        if (!idToken) {
+          showError(
+            'LINE認証情報を取得できませんでした。\n' +
+            '画面を再読み込みしてください。'
+          );
+
+          return;
+        }
+
+        setLoading(true);
+
+        try {
+          const response =
+            await fetch(GAS_API_URL, {
+              method: 'POST',
+              headers: {
+                'Content-Type':
+                  'text/plain;charset=utf-8'
+              },
+              body: JSON.stringify({
+                participantId:
+                  participantId,
+
+                idToken:
+                  idToken,
+
+                language:
+                  languageSelect.value,
+
+                consentAccepted:
+                  consentCheckbox.checked,
+
+                consentVersion:
+                  CONSENT_VERSION
+              })
+            });
+
+          const result =
+            await response.json();
+
+          handleSuccess(result);
+        } catch (error) {
+          handleFailure(error);
+        }
+      }
+    );
+
+    /**
+     * 登録成功
+     */
+    function handleSuccess(result) {
+      setLoading(false);
+
+      if (
+        !result ||
+        !result.success
+      ) {
+        showError(
+          result?.message ||
+          '登録できませんでした。'
+        );
+
+        return;
+      }
+
+      form.style.display = 'none';
+
+      showSuccess(
+        result.message +
+        '\n研究参加ID：' +
+        result.participantId
+      );
+
+      if (lineAddFriendUrl) {
+        friendSection.style.display =
+          'block';
+      }
+    }
+
+    /**
+     * GAS呼び出し失敗
+     */
+    function handleFailure(error) {
+      console.error(error);
+
+      setLoading(false);
+
+      showError(
+        '登録処理中にエラーが発生しました。\n' +
+        '時間をおいて再度お試しください。'
+      );
+    }
+
+    /**
+     * ローディング表示
+     */
+    function setLoading(isLoading) {
+      loading.classList.toggle(
+        'active',
+        isLoading
+      );
+
+      if (isLoading) {
+        submitButton.disabled = true;
+      } else {
+        updateSubmitButton();
+      }
+    }
+
+    /**
+     * 成功メッセージ
+     */
+    function showSuccess(text) {
+      message.className =
+        'message success';
+
+      message.textContent = text;
+    }
+
+    /**
+     * エラーメッセージ
+     */
+    function showError(text) {
+      message.className =
+        'message error';
+
+      message.textContent = text;
+    }
+
+    /**
+     * メッセージ初期化
+     */
+    function clearMessage() {
+      message.className =
+        'message';
+
+      message.textContent = '';
+    }
+
+    initializeLiff();
+  </script>
+</body>
+
+</html>
